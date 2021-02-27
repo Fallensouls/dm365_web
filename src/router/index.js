@@ -141,13 +141,7 @@ export const constantRoutes = [
         component: () => import("@/views/dataset/dataset_editor"),
         hidden: true
       },
-      {
-        path: "create",
-        name: "生成数据集",
-        meta: { title: "生成数据集", icon: "fa fa-list-alt" },
-        component: () => import("@/views/dataset/dataset_creater"),
-        hidden: true
-      },
+      
       {
         path: "view/:id",
         name: "数据集详情",
