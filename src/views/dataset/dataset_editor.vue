@@ -16,7 +16,7 @@
           :on-exceed="handleExceed"
           :file-list="fileList"
         >
-          <el-button slot="trigger" size="small" type="success"
+          <el-button slot="trigger" size="small" type="success" v-hasPermi="['dm365:image:add']"
             >上传图片</el-button
           >
           <el-button
@@ -24,6 +24,7 @@
             type="primary"
             size="mini"
             @click="startLabel()"
+            v-hasPermi="['dm365:image:label']"
             >{{
               showSelectColumn == false ? "批量标注" : "取消批量标注"
             }}</el-button
@@ -35,6 +36,7 @@
             multiple
             filterable
             placeholder="请选择"
+            v-hasPermi="['dm365:image:label']"
           >
             <el-option
               v-for="item in datasetTags"
@@ -54,6 +56,7 @@
             size="mini"
             :disabled="selectedTags.length == 0 || selectedImages.length == 0"
             @click="label()"
+            v-hasPermi="['dm365:image:label']"
             >一键标注</el-button
           >
           <div slot="tip" class="el-upload__tip">
@@ -140,6 +143,7 @@
             class="button-new-tag"
             size="small"
             @click="showInput(scope.row)"
+            v-hasPermi="['dm365:image:label']"
             >添加标注</el-button
           >
         </template>
@@ -185,13 +189,14 @@
       <el-table-column label="操作" align="center" min-width="120">
         <template slot-scope="scope">
           <router-link :to="`/dataset/image/edit/${scope.row.uuid}`">
-            <el-button size="mini">编辑</el-button>
+            <el-button size="mini" v-hasPermi="['dm365:image:edit']">编辑</el-button>
           </router-link>
           <el-button
             size="mini"
             type="danger"
             style="margin-left: 10px"
             @click="deleteImage(scope.$index, scope.row)"
+            v-hasPermi="['dm365:image:remove']" 
             >删除</el-button
           >
         </template>

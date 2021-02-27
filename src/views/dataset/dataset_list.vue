@@ -2,13 +2,13 @@
   <div class="app-container">
     <div class="actions">
       <div>
-        <el-button size="small" type="primary" @click="showCreateDialog = true"
+        <el-button size="small" type="primary" @click="showCreateDialog = true" v-hasPermi="['dm365:dataset:add']"
           >新增数据集</el-button
         >
         <router-link :to="`/dataset/create`">
           <el-button size="small" type="primary">生成数据集</el-button>
         </router-link>
-        <el-button size="small" type="primary" @click="showTagDialog = true"
+        <el-button size="small" type="primary" @click="showTagDialog = true" v-hasPermi="['dm365:tag:query']"
           >查看类别标签</el-button
         >
         <el-input
@@ -70,7 +70,7 @@
       <el-table-column label="操作" align="center" width="400">
         <template slot-scope="scope">
           <router-link :to="`/dataset/edit/${scope.row.uuid}`">
-            <el-button size="mini" style="margin-left: 8px">编辑</el-button>
+            <el-button size="mini" style="margin-left: 8px" v-hasPermi="['dm365:dataset:edit']">编辑</el-button>
           </router-link>
           <el-button
             size="mini"
@@ -94,6 +94,7 @@
               type="primary"
               style="margin-left: 8px"
               @click="importDataset(scope.row)"
+              v-hasPermi="['dm365:dataset:import']"
               >导入</el-button
             >
           </el-upload>
@@ -103,6 +104,7 @@
             type="primary"
             style="margin-left: 8px"
             @click="exportDataset(scope.row)"
+            v-hasPermi="['dm365:dataset:export']"
             >导出</el-button
           >
 
@@ -111,6 +113,7 @@
             type="danger"
             style="margin-left: 8px"
             @click="deleteDataset(scope.$index, scope.row)"
+            v-hasPermi="['dm365:dataset:remove']"
             >删除</el-button
           >
         </template>
@@ -283,6 +286,7 @@
           type="primary"
           style="margin-left: 10px"
           @click="showAddTagDialog = true"
+          v-hasPermi="['dm365:tag:add']"
           >添 加</el-button
         >
       </div>
@@ -306,6 +310,7 @@
               type="danger"
               style="margin-left: 10px"
               @click="deleteTag(scope.$index, scope.row)"
+              v-hasPermi="['dm365:tag:remove']"
               >删除</el-button
             >
           </template>
