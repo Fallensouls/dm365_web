@@ -77,7 +77,7 @@
     "@types/long": "^4.0.0",
     "@types/ndarray": "^1.0.7",
     "@types/request": "^2.48.1",
-    "@types/webgl2": "0.0.4",
+    "@types/webgl2": "0.0.5",
     "@babel/core": "7.0.0",
     "@babel/register": "7.0.0",
     "@babel/parser": "^7.7.4",

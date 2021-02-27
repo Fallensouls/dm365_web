@@ -116,8 +116,8 @@ import ops from "ndarray-ops";
 import loadImage from "blueimp-load-image";
 import { InferenceSession, Tensor } from "onnxjs";
 import { Vue, Component, Watch } from "vue-property-decorator";
-import { classUtils, mathUtils, runModelUtils } from "../../utils/libml";
-import {getModels, getModelInfo} from "../../api/analyzer/model";
+import { classUtils, mathUtils, runModelUtils } from "@/utils/libml";
+import { getModels, getModelInfo } from "@/api/analyzer/model";
 
 @Component({})
 export default class Classification extends Vue {
@@ -143,7 +143,7 @@ export default class Classification extends Vue {
   modelFile: ArrayBuffer;
   percentage: number;
   classes: { [id: number]: string[] };
-  
+
   constructor() {
     super();
     // this.modelFilepath =
@@ -170,7 +170,6 @@ export default class Classification extends Vue {
     this.imageSize = 224;
     this.percentage = 0;
     this.classes = {};
-    
   }
   preprocess(ctx: CanvasRenderingContext2D): Tensor {
     const imageData = ctx.getImageData(
@@ -226,7 +225,7 @@ export default class Classification extends Vue {
     }
     const output = mathUtils.softmax(Array.prototype.slice.call(res));
     const topk = classUtils.getClassesTopK(output, this.classes, 5);
-    console.log(topk);
+
     return topk;
   }
 
@@ -257,8 +256,13 @@ export default class Classification extends Vue {
     // let response = await gateway_service.get(
     //   this.modelSelectList[index].info_url
     // );
-    
-    let { model_size, class_name } = await getModelInfo(this.modelSelectList[index].info_url);
+
+    let response = await getModelInfo(
+      // this.modelSelectList[index].info_url
+      "http://47.114.104.84:8080/analyze/models/info/resnet50v2.onnx"
+    );
+    let { class_name } = response.data;
+
     this.classes = class_name;
     // try {
     //   response = await gateway_service.get(this.modelSelectList[index].url, {
@@ -464,8 +468,8 @@ export default class Classification extends Vue {
 }
 </script>
 
-<style lang="postcss" scoped>
-@import "../../variables.css";
+<style lang="scss" scoped>
+/* @import "../../variables.css"; */
 .el-select {
   width: 220px;
   size: auto;
