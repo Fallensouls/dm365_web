@@ -174,7 +174,7 @@ export const constantRoutes = [
       {
         path: "/image/recognition",
         name: "饮食图像识别",
-        meta: { title: "饮食图像识别", icon: "fa fa-list-alt" },
+        meta: { title: "饮食图像识别", icon: "tree" },
         component: () => import("@/views/image/classification"),
       }
     ]

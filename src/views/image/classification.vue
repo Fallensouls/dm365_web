@@ -86,7 +86,7 @@
             predicted: i === 0 && outputClasses[i].probability.toFixed(2) > 0,
           }"
         >
-          <div class="output-label">{{ outputClasses[i].id }}</div>
+          <div class="output-label">{{ outputClasses[i].name }}</div>
           <div
             class="output-bar"
             :style="{
@@ -110,7 +110,7 @@
   </div>
 </template>
 
-<script type="module" lang="ts">
+<script lang="ts">
 import ndarray from "ndarray";
 import ops from "ndarray-ops";
 import loadImage from "blueimp-load-image";
@@ -253,13 +253,8 @@ export default class Classification extends Vue {
     const res = await fetch(modelFilepath);
     this.modelFile = await res.arrayBuffer();
 
-    // let response = await gateway_service.get(
-    //   this.modelSelectList[index].info_url
-    // );
-
     let response = await getModelInfo(
-      // this.modelSelectList[index].info_url
-      "http://47.114.104.84:8080/analyze/models/info/resnet50v2.onnx"
+      this.modelSelectList[index].info_url
     );
     let { class_name } = response.data;
 
@@ -469,7 +464,6 @@ export default class Classification extends Vue {
 </script>
 
 <style lang="scss" scoped>
-/* @import "../../variables.css"; */
 .el-select {
   width: 220px;
   size: auto;
