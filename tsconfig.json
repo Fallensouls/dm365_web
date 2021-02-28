@@ -34,7 +34,8 @@
         "pretty": true,
         "allowUnreachableCode": false,
         "experimentalDecorators": true,
-        "allowSyntheticDefaultImports": true
+        "allowSyntheticDefaultImports": true,
+        "skipLibCheck": true
     },
     "include": [
         "src/**/*.js",

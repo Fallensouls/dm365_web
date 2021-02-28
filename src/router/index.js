@@ -166,6 +166,20 @@ export const constantRoutes = [
 
     ]
   },
+  {
+    path: "", name: "饮食图像处理",
+    meta: { title: "饮食图像处理", icon: "fa fa-book" },
+    component: Layout,
+    children: [
+      {
+        path: "/image/recognition",
+        name: "饮食图像识别",
+        meta: { title: "饮食图像识别", icon: "fa fa-list-alt" },
+        component: () => import("@/views/image/classification"),
+      }
+    ]
+
+  }
 ]
 
 export default new Router({
