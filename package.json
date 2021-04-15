@@ -1,7 +1,7 @@
 {
   "name": "ruoyi",
   "version": "2.3.0",
-  "description": "若依管理系统",
+  "description": "饮食管理系统",
   "author": "若依",
   "license": "MIT",
   "scripts": {

@@ -256,10 +256,10 @@ import {getFile} from "@/api/node/file"
                     objectlist[o_id].title_cn = objectlist[o_id].tags[0].title_cn;
                     this.objectname[o_id] = objectlist[o_id].tags[0].title_cn;      
                 }
-                var x1 = objectlist[o_id].subimagex1;
-                var x2 = objectlist[o_id].subimagex2;
-                var y1 = objectlist[o_id].subimagey1;
-                var y2 = objectlist[o_id].subimagey2;
+                var x1 = objectlist[o_id].subimagex1.toFixed(2);
+                var x2 = objectlist[o_id].subimagex2.toFixed(2);
+                var y1 = objectlist[o_id].subimagey1.toFixed(2);
+                var y2 = objectlist[o_id].subimagey2.toFixed(2);
                 objectlist[o_id].objkeypoint = `left: ${x1} top: ${y1} right: ${x2} bottom: ${y2}`
                 if (objectlist[o_id].shape.length > 0) {
                     let keypoint_str = "";
@@ -303,10 +303,10 @@ import {getFile} from "@/api/node/file"
                     this.objectlist[o_id].title_cn = this.objectlist[o_id].tags[0].title_cn;
                     this.objectname[o_id] = this.objectlist[o_id].tags[0].title_cn;      
                 }
-                var x1 = this.objectlist[o_id].subimagex1;
-                var x2 = this.objectlist[o_id].subimagex2;
-                var y1 = this.objectlist[o_id].subimagey1;
-                var y2 = this.objectlist[o_id].subimagey2;
+                var x1 = this.objectlist[o_id].subimagex1.toFixed(2);
+                var x2 = this.objectlist[o_id].subimagex2.toFixed(2);
+                var y1 = this.objectlist[o_id].subimagey1.toFixed(2);
+                var y2 = this.objectlist[o_id].subimagey2.toFixed(2);
                 this.objectlist[o_id].objkeypoint = `left: ${x1} top: ${y1} right: ${x2} bottom: ${y2}`
                 if (this.objectlist[o_id].shape.length > 0) {
                     let keypoint_str = "";
@@ -773,7 +773,7 @@ import {getFile} from "@/api/node/file"
                     "subimagex1": x1,
                     "subimagex2": x2,
                     "subimagey2": y2,
-                    "objkeypoint": `left: ${x1} top: ${y1} right: ${x2} bottom: ${y2}`,
+                    "objkeypoint": `left: ${x1.toFixed(2)} top: ${y1.toFixed(2)} right: ${x2.toFixed(2)} bottom: ${y2.toFixed(2)}`,
                     "display": true
                 }
                 this.labelobjectlist.push(target);
