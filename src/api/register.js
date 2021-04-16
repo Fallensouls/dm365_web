@@ -1,15 +1,14 @@
 import request from '@/utils/request'
 
-// 登录方法
-export function register(username, password, code, uuid, roles, email, phone) {
+export function register(userName, password, code, uuid, roleIds, email, phonenumber) {
   const data = {
-    username,
+    userName,
     password,
     code,
     uuid,
-    roles,
+    roleIds,
     email,
-    phone
+    phonenumber
   }
   return request({
     url: '/idm/register',

@@ -378,7 +378,7 @@ export default {
           relations.push(relation);
         }
       }
-      await _image.batchtag(relations);
+      await _image.batchTag(relations);
       this.$message({
         type: "success",
         message: "一键标注成功!",
