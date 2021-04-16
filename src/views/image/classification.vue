@@ -256,7 +256,8 @@ export default class Classification extends Vue {
     let response = await getModelInfo(
       this.modelSelectList[index].info_url
     );
-    let { class_name } = response.data;
+    console.log(response);
+    let { class_name } = response;
 
     this.classes = class_name;
     // try {
