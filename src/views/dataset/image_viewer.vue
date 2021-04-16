@@ -381,7 +381,97 @@ import {getFile} from "@/api/node/file"
             this.scale = scale
             this.ctx1.restore()
         },
-        
+        getOrigin:function(event){
+            if(this.isLabel == true){
+                this.origin_x = event.offsetX;
+                this.origin_y = event.offsetY;
+                this.Trigger = true;
+            }
+        },
+        updateXY:function(event){
+            if(this.isLabel == true){
+                if(this.Trigger == true){
+                    this.x = event.offsetX;
+                    this.y = event.offsetY;
+                    const {width, height} = this
+                    if(this.x > this.origin_x && this.y > this.origin_y){
+                        this.ctx3.clearRect(0,0,width,height);
+                        this.ctx3.strokeStyle = '#00FF7F';
+                        this.ctx3.strokeRect(this.origin_x,this.origin_y,this.x-this.origin_x,this.y-this.origin_y);
+                    }
+                    else if(this.x > this.origin_x && this.y < this.origin_y){
+                        this.ctx3.clearRect(0,0,width,height);
+                        this.ctx3.strokeStyle = '#00FF7F';
+                        this.ctx3.strokeRect(this.origin_x,this.y,this.x-this.origin_x,this.origin_y-this.y);
+                    }
+                    else if(this.x < this.origin_x && this.y > this.origin_y){
+                        this.ctx3.clearRect(0,0,width,height);
+                        this.ctx3.strokeStyle = '#00FF7F';
+                        this.ctx3.strokeRect(this.x,this.origin_y,this.origin_x-this.x,this.y-this.origin_y);
+                    }
+                    else{
+                        this.ctx3.clearRect(0,0,width,height);
+                        this.ctx3.strokeStyle = '#00FF7F';
+                        this.ctx3.strokeRect(this.x,this.y,this.origin_x-this.x,this.origin_y-this.y);
+                    }
+                }
+            }
+        },
+        getOffset:function(event){
+            if(this.isLabel == true){
+                if(event.offsetX > this.origin_x){
+                    this.offset_width = event.offsetX - this.origin_x;
+                }
+                else{
+                    this.offset_width = this.origin_x - event.offsetX;
+                    this.origin_x = event.offsetX;
+                }
+                if(event.offsetY > this.origin_y){
+                    this.offset_height = event.offsetY - this.origin_y;
+                }
+                else{
+                    this.offset_height = this.origin_y - event.offsetY;
+                    this.origin_y = event.offsetY;
+                }
+                this.Trigger = false;
+                const {width, height} = this
+                this.ctx3.clearRect(0,0,width,height);
+                this.ctx2.strokeStyle = '#00FF7F';
+                this.ctx2.strokeRect(this.origin_x,this.origin_y,this.offset_width,this.offset_height);
+                var x1, y1;
+                var x2, y2;
+                [x1, y1] = this.changeToPicCoor(this.origin_x, this.origin_y);
+                [x2, y2] = this.changeToPicCoor(this.offset_width+this.origin_x, this.offset_height+this.origin_y);
+                var target = {
+                    "title_cn": null,
+                    "subimagey1": y1,
+                    "subimagex1": x1,
+                    "subimagex2": x2,
+                    "subimagey2": y2,
+                    "objkeypoint": `left: ${x1} top: ${y1} right: ${x2} bottom: ${y2}`,
+                    "display": true
+                }
+                this.labelobjectlist.push(target);
+                this.isLabel = false;
+                this.canvas3.style.cursor = 'default';
+            }
+        },
+        position:function(event){
+            if(this.isLabelPoints == true){
+                this.arr.push([event.offsetX, event.offsetY]);
+                this.points.push(this.changeToPicCoor(event.offsetX, event.offsetY));
+                this.ctx3.lineWidth = 4;
+                this.ctx3.strokeStyle='#1E90FF';
+                if(this.arr.length==1){
+                    this.ctx3.beginPath();
+                    this.ctx3.moveTo(event.offsetX, event.offsetY)
+                }
+                else{
+                    this.ctx3.lineTo(event.offsetX, event.offsetY);
+                    this.ctx3.stroke();   //描边
+                }
+            }
+        },
          // 与canvas相关的绘图事件(包含显示图片、显示bounding box和用鼠标标注bounding box)
          drawOriginalImage(){
             //加载初始图片，将其显示在canvas上

@@ -56,10 +56,11 @@ export function getDatasetRelatedTags(datasetid) {
     })
 }
 
-export function addDatasetRelatedTag(datasetid, tagid) {
+export function addDatasetRelatedTag(datasetid, data) {
     return request({
-        url: `${urlPrefix}/dataset/${datasetid}/tags/${tagid}`,
+        url: `${urlPrefix}/dataset/${datasetid}/tags`,
         method: 'post',
+        data: data
     })
 }
 

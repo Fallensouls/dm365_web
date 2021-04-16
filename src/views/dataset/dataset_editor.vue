@@ -77,9 +77,9 @@
         <template slot-scope="scope">
           <el-image
             style="width: 100px; height: 100px"
-            :src="`http://47.114.104.84:8080/ndb/file/${scope.row.storageobjectid}`"
+            :src="`http://192.168.1.107:8080/ndb/file/${scope.row.storageobjectid}`"
             :preview-src-list="[
-              `http://47.114.104.84:8080/ndb/file/${scope.row.storageobjectid}`,
+              `http://192.168.1.107:8080/ndb/file/${scope.row.storageobjectid}`,
             ]"
             lazy
           >
