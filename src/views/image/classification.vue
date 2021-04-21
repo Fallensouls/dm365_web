@@ -91,14 +91,8 @@
             class="output-bar"
             :style="{
               width: `${Math.round(180 * outputClasses[i].probability)}px`,
-              background: `rgba(42, 106, 150, ${outputClasses[
-                i
-              ].probability.toFixed(2)})`,
-              transition: `${
-                outputClasses[i].probability != 0
-                  ? 'width 0.2s ease-out'
-                  : 'null'
-              }`,
+              background: `rgba(42, 106, 150, ${outputClasses[i].probability.toFixed(2)})`,
+              transition: `${outputClasses[i].probability != 0 ? 'width 0.2s ease-out': 'null'}`,
             }"
           ></div>
           <div class="output-value">
@@ -256,7 +250,7 @@ export default class Classification extends Vue {
     let response = await getModelInfo(
       this.modelSelectList[index].info_url
     );
-    console.log(response);
+    
     let { class_name } = response;
 
     this.classes = class_name;
