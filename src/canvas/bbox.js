@@ -1,26 +1,18 @@
 import { pic2CanvasCoor, canvas2PicCoor } from "@/canvas/util";
 
-export function canvas2PicBBox(x, y, w, h, currentX, currentY, scale) {
-  let [x1, y1] = canvas2PicCoor(x, y, currentX, currentY, scale);
-  let [x2, y2] = canvas2PicCoor(x + w, y + h, currentX, currentY, scale);
+export function canvas2PicBBox(x, y, w, h, canvas) {
+  let [x1, y1] = canvas2PicCoor(x, y, canvas);
+  let [x2, y2] = canvas2PicCoor(x + w, y + h, canvas);
   return [x1, y1, x2, y2];
 }
 
 export function drawBoundingBox(ctx, x, y, w, h) {
-  ctx.strokeStyle = "#00FF7F";
+  ctx.strokeStyle = "#1E90FF";
   ctx.strokeRect(x, y, w, h);
 }
 
-export function drawMultipleBoundingBox(
-  ctx,
-  objectList,
-  colorsMap,
-  currentX,
-  currentY,
-  scale
-) {
+export function drawMultipleBoundingBox(ctx, objectList, colorsMap, canvas) {
   ctx.lineWidth = 4;
-  ctx.strokeStyle = "#1E90FF";
   ctx.font = "14px Arial";
   let x1, y1;
   let x2, y2;
@@ -48,16 +40,12 @@ export function drawMultipleBoundingBox(
     [x1, y1] = pic2CanvasCoor(
       objectList[i].subimagex1,
       objectList[i].subimagey1,
-      currentX,
-      currentY,
-      scale
+      canvas
     );
     [x2, y2] = pic2CanvasCoor(
       objectList[i].subimagex2,
       objectList[i].subimagey2,
-      currentX,
-      currentY,
-      scale
+      canvas
     );
     ctx.strokeRect(x1, y1, x2 - x1, y2 - y1);
     if (objectList[i].title_cn != null) {

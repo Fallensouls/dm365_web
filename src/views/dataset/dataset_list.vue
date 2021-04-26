@@ -380,8 +380,12 @@
 <script>
 import * as _dataset from "@/api/dm365/dataset";
 import * as _tag from "@/api/dm365/tag";
-import {importDataset, exportDataset, downloadDataset} from "@/api/analyzer/dataset";
-import {queryTask} from "@/api/analyzer/task";
+import {
+  importDataset,
+  exportDataset,
+  downloadDataset
+} from "@/api/analyzer/dataset";
+import { queryTask } from "@/api/analyzer/task";
 
 export default {
   data: () => ({
@@ -414,24 +418,28 @@ export default {
     formLabelWidth: "120px",
     row: null,
     import_condition: "导入图片及标注",
-    export_condition: "使用当前设置",
+    export_condition: "使用当前设置"
   }),
   methods: {
     async initTableData() {
       this.loading = true;
       this.Datasetcount = await _dataset.getDatasetCount();
-      
-      let offset = (this.currentPage - 1) * 20
-      let limit = 20
+
+      let offset = (this.currentPage - 1) * 20;
+      let limit = 20;
       let datasetList = (await _dataset.getDatasets(offset, limit))["content"];
       for (let i in datasetList) {
         let dataset = datasetList[i];
-        dataset.count = await _dataset.getDatasetImageCount(datasetList[i].uuid);
-        dataset.tagcount = await _dataset.getDatasetTagCount(datasetList[i].uuid);
+        dataset.count = await _dataset.getDatasetImageCount(
+          datasetList[i].uuid
+        );
+        dataset.tagcount = await _dataset.getDatasetTagCount(
+          datasetList[i].uuid
+        );
       }
       this.Datasetlist = datasetList;
       await this.getTagsInfo();
-      
+
       this.loading = false;
     },
 
@@ -464,7 +472,7 @@ export default {
 
     async getDatasetRelatedTags(datasetid) {
       let res = await _dataset.getDatasetRelatedTags(datasetid);
-      res.sort(function (a, b) {
+      res.sort(function(a, b) {
         return a.title_en > b.title_en;
       });
       this.taglist = res;
@@ -480,7 +488,7 @@ export default {
 
     toggleSelection(rows) {
       if (rows) {
-        rows.forEach((row) => {
+        rows.forEach(row => {
           this.$refs.multipleTable.toggleRowSelection(row);
         });
       } else {
@@ -493,7 +501,7 @@ export default {
     async addDatasetTagRelation() {
       await _dataset.addDatasetRelatedTag(this.datasetid, this.selectedTags);
       await this.getDatasetRelatedTags(this.datasetid);
-      
+
       this.selectedTags = [];
       this.showSelectTagDialog = false;
     },
@@ -514,19 +522,19 @@ export default {
       this.$confirm("此操作将删除该数据集, 是否继续?", "提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
-        type: "warning",
+        type: "warning"
       })
         .then(() => {
           this.handleDeleteDataset(index, row);
           this.$message({
             type: "success",
-            message: "删除成功!",
+            message: "删除成功!"
           });
         })
         .catch(() => {
           this.$message({
             type: "info",
-            message: "已取消删除",
+            message: "已取消删除"
           });
         });
     },
@@ -534,19 +542,19 @@ export default {
       this.$confirm("此操作将删除该标签, 是否继续?", "提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
-        type: "warning",
+        type: "warning"
       })
         .then(() => {
           this.handleDeleteTag(index, row);
           this.$message({
             type: "success",
-            message: "删除成功!",
+            message: "删除成功!"
           });
         })
         .catch(() => {
           this.$message({
             type: "info",
-            message: "已取消删除",
+            message: "已取消删除"
           });
         });
     },
@@ -563,7 +571,12 @@ export default {
       this.showImportDialog = false;
     },
     async handleExport() {
-      let response = await exportDataset(this.row.uuid, this.row.name, this.exportConfig.testSize, this.exportConfig.exportFormat);      
+      let response = await exportDataset(
+        this.row.uuid,
+        this.row.name,
+        this.exportConfig.testSize,
+        this.exportConfig.exportFormat
+      );
       if (response.status == 202) {
         let url = response.headers["location"];
         this.queryExportResult(url);
@@ -596,7 +609,7 @@ export default {
         window.URL.revokeObjectURL(link.href);
       }
     },
-    
+
     async handleDeleteDataset(index, row) {
       await _dataset.deleteDataset(row.id);
       this.initTableData();
@@ -622,8 +635,8 @@ export default {
 
       let config = {
         headers: {
-          "Content-Type": "multipart/form-data",
-        },
+          "Content-Type": "multipart/form-data"
+        }
       };
 
       let response = await importDataset(formData);
@@ -633,7 +646,7 @@ export default {
       } else {
         this.$message.error(`导入失败`);
       }
-      
+
       this.fileList = [];
     },
 
@@ -647,17 +660,14 @@ export default {
         this.initTableData();
         this.$message.success(`导入成功`);
       }
-    },
+    }
   },
 
   mounted() {
     this.initTableData();
-  },
+  }
 };
 </script>
-
-
-
 
 <!--###############################################################################-->
 <style lang="scss" scoped>

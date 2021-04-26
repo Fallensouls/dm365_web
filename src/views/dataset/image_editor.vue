@@ -168,15 +168,23 @@ import * as _image from "@/api/dm365/image";
 import * as _tag from "@/api/dm365/tag";
 import { getFile } from "@/api/node/file";
 
+import { CanvasParams } from "@/canvas/params";
 import { getOriginXY, updateXY, getPolygon } from "@/canvas/event";
-import { clearCanvas, drawImage, randomColorize } from "@/canvas/util";
+import {
+  clearCanvas,
+  drawImage,
+  updateCurrentXY,
+  randomColorize
+} from "@/canvas/util";
+
 import {
   drawBoundingBox,
   drawMultipleBoundingBox,
   canvas2PicBBox
 } from "@/canvas/bbox";
+
 import {
-  drawPolygonByCanvasCoor,
+  drawPolygonByCanvasCoors,
   drawPolygonByPicCoors,
   drawMultiplePolygon
 } from "@/canvas/polygon";
@@ -326,13 +334,12 @@ export default {
           if (_this.picPolygon.length > 0) {
             let { width, height } = _this;
             clearCanvas(_this.tmpLabelCtx, width, height);
-            drawPolygonByPicCoors(
-              _this.labelCtx,
-              _this.picPolygon,
+            let params = new CanvasParams(
               _this.currentX,
               _this.currentY,
               _this.scale
             );
+            drawPolygonByPicCoors(_this.labelCtx, _this.picPolygon, params);
           }
           this.moveStartx += moveDisx;
           this.moveStarty += moveDisy;
@@ -379,13 +386,12 @@ export default {
           if (_this.picPolygon.length > 0) {
             let { width, height } = _this;
             clearCanvas(_this.tmpLabelCtx, width, height);
-            drawPolygonByPicCoors(
-              _this.labelCtx,
-              _this.picPolygon,
+            let params = new CanvasParams(
               _this.currentX,
               _this.currentY,
               _this.scale
             );
+            drawPolygonByPicCoors(_this.labelCtx, _this.picPolygon, params);
           }
           // event.preventDefault  && event.preventDefault(); // 阻止默认事件，可能在滚动的时候，浏览器窗口也会滚动
         }
@@ -408,14 +414,19 @@ export default {
     drawImage(img, x = 0, y = 0, scale = 1, deg = 0, isScale = false) {
       let { width, height } = this;
       clearCanvas(this.imgCtx, width, height);
-      if (isScale) {
-        this.currentX = x + ((this.currentX - x) / this.scale) * scale;
-        this.currentY = y + ((this.currentY - y) / this.scale) * scale;
-      } else {
-        this.currentX = -x + this.currentX;
-        this.currentY = -y + this.currentY;
-      }
-      drawImage(this.imgCtx, img, this.currentX, this.currentY, scale, deg);
+      let params = new CanvasParams(this.currentX, this.currentY, scale);
+      [this.currentX, this.currentY] = updateCurrentXY(
+        x,
+        y,
+        width,
+        height,
+        img.width,
+        img.height,
+        this.scale,
+        params
+      );
+      params = new CanvasParams(this.currentX, this.currentY, scale);
+      drawImage(this.imgCtx, img, params);
       this.scale = scale;
     },
 
@@ -443,15 +454,8 @@ export default {
         const { width, height } = this;
         clearCanvas(this.tmpLabelCtx, width, height);
         drawBoundingBox(this.labelCtx, x, y, w, h);
-        let [x1, y1, x2, y2] = canvas2PicBBox(
-          x,
-          y,
-          w,
-          h,
-          this.currentX,
-          this.currentY,
-          this.scale
-        );
+        let params = new CanvasParams(this.currentX, this.currentY, this.scale);
+        let [x1, y1, x2, y2] = canvas2PicBBox(x, y, w, h, params);
         let target = {
           title_cn: null,
           subimagey1: y1,
@@ -468,28 +472,21 @@ export default {
     },
 
     drawBoundingBoxes(objectList) {
+      let params = new CanvasParams(this.currentX, this.currentY, this.scale);
       drawMultipleBoundingBox(
         this.labelCtx,
         objectList,
         this.colorsMap,
-        this.currentX,
-        this.currentY,
-        this.scale
+        params
       );
     },
 
     // polygon
     labelPolygon: function(event) {
       if (this.isLabelPolygon) {
-        getPolygon(
-          this.canvasPolygon,
-          this.picPolygon,
-          this.currentX,
-          this.currentY,
-          this.scale,
-          event
-        );
-        drawPolygonByCanvasCoor(
+        let params = new CanvasParams(this.currentX, this.currentY, this.scale);
+        getPolygon(this.canvasPolygon, this.picPolygon, params, event);
+        drawPolygonByCanvasCoors(
           this.tmpLabelCtx,
           event.offsetX,
           event.offsetY,
@@ -502,14 +499,8 @@ export default {
       this.Trigger = false;
       const { width, height } = this;
       clearCanvas(this.tmpLabelCtx, width, height);
-      drawPolygonByPicCoors(
-        this.labelCtx,
-        this.picPolygon,
-        this.currentX,
-        this.currentY,
-        this.scale,
-        true
-      );
+      let params = new CanvasParams(this.currentX, this.currentY, this.scale);
+      drawPolygonByPicCoors(this.labelCtx, this.picPolygon, params, true);
       var keypointStr = "";
 
       for (var i in this.picPolygon) {
@@ -536,14 +527,8 @@ export default {
     },
 
     drawPolygons(objectList) {
-      drawMultiplePolygon(
-        this.labelCtx,
-        objectList,
-        this.colorsMap,
-        this.currentX,
-        this.currentY,
-        this.scale
-      );
+      let params = new CanvasParams(this.currentX, this.currentY, this.scale);
+      drawMultiplePolygon(this.labelCtx, objectList, this.colorsMap, params);
     },
 
     // draw all annotations, including bboxes and polygons

@@ -1,6 +1,6 @@
 import { pic2CanvasCoor } from "@/canvas/util";
 
-export function drawPolygonByCanvasCoor(ctx, x, y, isStart) {
+export function drawPolygonByCanvasCoors(ctx, x, y, isStart) {
   ctx.lineWidth = 4;
   ctx.strokeStyle = "#1E90FF";
   if (isStart) {
@@ -15,27 +15,21 @@ export function drawPolygonByCanvasCoor(ctx, x, y, isStart) {
 export function drawPolygonByPicCoors(
   ctx,
   coordinates,
-  currentX,
-  currentY,
-  scale,
+  canvas,
   isClosed = false
 ) {
   ctx.beginPath();
   let [x, y] = pic2CanvasCoor(
     coordinates[coordinates.length - 1][0],
     coordinates[coordinates.length - 1][1],
-    currentX,
-    currentY,
-    scale
+    canvas
   );
   ctx.moveTo(x, y);
   for (let i = 0; i < coordinates.length; i++) {
     [x, y] = pic2CanvasCoor(
       coordinates[coordinates.length - 1 - i][0],
       coordinates[coordinates.length - 1 - i][1],
-      currentX,
-      currentY,
-      scale
+      canvas
     );
     ctx.lineTo(x, y);
   }
@@ -47,14 +41,7 @@ export function drawPolygonByPicCoors(
   ctx.stroke(); //描边
 }
 
-export function drawMultiplePolygon(
-  ctx,
-  objectList,
-  colorsMap,
-  currentX,
-  currentY,
-  scale
-) {
+export function drawMultiplePolygon(ctx, objectList, colorsMap, canvas) {
   ctx.beginPath();
   ctx.lineWidth = 4;
   ctx.font = "14px Arial";
@@ -77,9 +64,7 @@ export function drawMultiplePolygon(
     let [px, py] = pic2CanvasCoor(
       objectList[i].shape[0][0],
       objectList[i].shape[0][1],
-      currentX,
-      currentY,
-      scale
+      canvas
     );
     ctx.moveTo(px, py);
     let px0 = px;
@@ -90,9 +75,7 @@ export function drawMultiplePolygon(
       [px, py] = pic2CanvasCoor(
         objectList[i].shape[j][0],
         objectList[i].shape[j][1],
-        currentX,
-        currentY,
-        scale
+        canvas
       );
       ctx.lineTo(px, py);
       if (py1 > py) {

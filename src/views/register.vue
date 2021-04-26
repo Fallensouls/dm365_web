@@ -123,44 +123,42 @@ export default {
         code: "",
         uuid: "",
         role: "1",
-        roles: [],
+        roles: []
       },
       loginRules: {
         username: [
-          { required: true, trigger: "blur", message: "用户名不能为空" },
+          { required: true, trigger: "blur", message: "用户名不能为空" }
         ],
         password: [
-          { required: true, trigger: "blur", message: "密码不能为空" },
+          { required: true, trigger: "blur", message: "密码不能为空" }
         ],
-        code: [
-          { required: true, trigger: "change", message: "验证码不能为空" },
-        ],
+        code: [{ required: true, trigger: "change", message: "验证码不能为空" }]
       },
       loading: false,
-      redirect: undefined,
+      redirect: undefined
     };
   },
   watch: {
     $route: {
-      handler: function (route) {
+      handler: function(route) {
         this.redirect = route.query && route.query.redirect;
       },
-      immediate: true,
-    },
+      immediate: true
+    }
   },
   created() {
     this.getCode();
   },
   methods: {
     getCode() {
-      getCodeImg().then((res) => {
+      getCodeImg().then(res => {
         this.codeUrl = "data:image/gif;base64," + res.img;
         this.registerForm.uuid = res.uuid;
       });
     },
 
     handleRegister() {
-      this.$refs.registerForm.validate((valid) => {
+      this.$refs.registerForm.validate(valid => {
         if (valid) {
           this.loading = true;
           this.registerForm.roles.push(Number(this.registerForm.role));
@@ -170,7 +168,7 @@ export default {
             .then(() => {
               this.$message({
                 message: "注册成功",
-                type: "success",
+                type: "success"
               });
               this.registerForm.roles = [];
               this.$router.push({ path: this.redirect || "/" });
@@ -182,8 +180,8 @@ export default {
             });
         }
       });
-    },
-  },
+    }
+  }
 };
 </script>
 

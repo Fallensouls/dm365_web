@@ -77,7 +77,13 @@ import * as _image from "@/api/dm365/image";
 import * as _tag from "@/api/dm365/tag";
 import { getFile } from "@/api/node/file";
 
-import { clearCanvas, drawImage, randomColorize } from "@/canvas/util";
+import { CanvasParams } from "@/canvas/params";
+import {
+  clearCanvas,
+  drawImage,
+  updateCurrentXY,
+  randomColorize
+} from "@/canvas/util";
 import { drawMultipleBoundingBox } from "@/canvas/bbox";
 import { drawMultiplePolygon } from "@/canvas/polygon";
 
@@ -146,60 +152,9 @@ export default {
         var bbox = canvas.getBoundingClientRect();
         var x = event.clientX - bbox.left * (canvas.width / bbox.width);
         var y = event.clientY - bbox.top * (canvas.height / bbox.height);
-        var px, py;
-        // [px, py] = canvas2PicCoor(
-        //   x,
-        //   y,
-        //   this.currentX,
-        //   this.currentY,
-        //   this.scale
-        // );
         this.moveFlag = true;
         this.moveStartx = x;
         this.moveStarty = y;
-        // if (this.moveBoxFlag) {
-        //     this.moveBoxFlag = false;
-        //     // let [x, y] = _this.changeToPicCoor(event.clientX, event.clientY);
-        //     _this.imageinfo.label[this.moveI].point[this.moveJ][0] = px;
-        //     _this.imageinfo.label[this.moveI].point[this.moveJ][1] = py;
-        //     var keypoint_str = ""
-        //     for (var i in _this.imageinfo.label[this.moveI].point)
-        //     {
-        //         keypoint_str=keypoint_str+"("+String(_this.imageinfo.label[this.moveI].point[i][0])+"  "+String(_this.imageinfo.label[this.moveI].point[i][1])+")"+"  ";
-        //     }
-        //     _this.imageinfo.label[this.moveI].keyPoint = keypoint_str
-        //     console.log(_this.imageinfo.label)
-        //     _this.drawPolygons();
-        //     _this.savelabels();
-        //     return
-        // }
-        // if (!_this.selected) {
-        //     for(let i = 0; i < _this.imageinfo.label.length; i++) {
-        //         for(let j = 0; j < _this.imageinfo.label[i].point.length; j++) {
-        //             let target_x = _this.imageinfo.label[i].point[j][0];
-        //             let target_y = _this.imageinfo.label[i].point[j][1];
-        //             [target_x, target_y] = _this.changeToCanvasCoor(target_x, target_y);
-        //             if (_this.isPointSelected(target_x, target_y, x, y)) {
-        //                 console.log("draw")
-        //                 _this.selected = !_this.selected;
-        //                 _this.labelCtx.moveTo(target_x, target_y)
-        //                 _this.labelCtx.arc(target_x, target_y, 5, 0, 2*Math.PI);
-        //                 _this.labelCtx.stroke();
-        //                 this.moveI = i;
-        //                 this.moveJ = j;
-        //                 break;
-        //             }
-        //         }
-        //     }
-        // } else {
-        //     let target_x = _this.imageinfo.label[this.moveI].point[this.moveJ][0];
-        //     let target_y = _this.imageinfo.label[this.moveI].point[this.moveJ][1];
-        //     [target_x, target_y] = _this.changeToCanvasCoor(target_x, target_y);
-        //     if (_this.isPointSelected(target_x, target_y, x, y)) {
-        //         this.moveBoxFlag = true;
-        //     }
-        //     _this.selected = !_this.selected;
-        // }
       };
       canvas.onmousemove = function(event) {
         var bbox = canvas.getBoundingClientRect();
@@ -217,17 +172,6 @@ export default {
           this.moveStartx += moveDisx;
           this.moveStarty += moveDisy;
         }
-        // if (this.moveBoxFlag) {
-        //     var x = event.clientX - bbox.left *(canvas.width / bbox.width)
-        //     var y = event.clientY - bbox.top * (canvas.height / bbox.height)
-        //     let [px, py] = _this.changeToPicCoor(x, y);
-        //     _this.imageinfo.label[this.moveI].point[this.moveJ][0] = px;
-        //     _this.imageinfo.label[this.moveI].point[this.moveJ][1] = py;
-        //     _this.drawPolygons();
-        //     _this.labelCtx.moveTo(x, y)
-        //     _this.labelCtx.arc(x, y, 5, 0, 2*Math.PI);
-        //     _this.labelCtx.stroke();
-        // }
       };
 
       canvas.onmouseup = function() {
@@ -277,36 +221,39 @@ export default {
     drawImage(img, x = 0, y = 0, scale = 1, deg = 0, isScale = false) {
       let { width, height } = this;
       clearCanvas(this.imgCtx, width, height);
-      if (isScale) {
-        this.currentX = x + ((this.currentX - x) / this.scale) * scale;
-        this.currentY = y + ((this.currentY - y) / this.scale) * scale;
-      } else {
-        this.currentX = -x + this.currentX;
-        this.currentY = -y + this.currentY;
-      }
-      drawImage(this.imgCtx, img, this.currentX, this.currentY, scale, deg);
+      let params = new CanvasParams(this.currentX, this.currentY, scale);
+      [this.currentX, this.currentY] = updateCurrentXY(
+        x,
+        y,
+        width,
+        height,
+        img.width,
+        img.height,
+        this.scale,
+        params
+      );
+      params = new CanvasParams(this.currentX, this.currentY, scale);
+      drawImage(this.imgCtx, img, params);
       this.scale = scale;
     },
 
     drawBoundingBoxes() {
+      let params = new CanvasParams(this.currentX, this.currentY, this.scale);
       drawMultipleBoundingBox(
         this.labelCtx,
         this.objectList,
         this.colorsMap,
-        this.currentX,
-        this.currentY,
-        this.scale
+        params
       );
     },
 
     drawPolygons() {
+      let params = new CanvasParams(this.currentX, this.currentY, this.scale);
       drawMultiplePolygon(
         this.labelCtx,
         this.objectList,
         this.colorsMap,
-        this.currentX,
-        this.currentY,
-        this.scale
+        params
       );
     },
 

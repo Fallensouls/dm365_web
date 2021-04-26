@@ -77,9 +77,11 @@
         <template slot-scope="scope">
           <el-image
             style="width: 100px; height: 100px"
-            :src="`http://192.168.1.107:8080/ndb/file/${scope.row.storageobjectid}`"
+            :src="
+              `http://192.168.1.107:8080/ndb/file/${scope.row.storageobjectid}`
+            "
             :preview-src-list="[
-              `http://192.168.1.107:8080/ndb/file/${scope.row.storageobjectid}`,
+              `http://192.168.1.107:8080/ndb/file/${scope.row.storageobjectid}`
             ]"
             lazy
           >
@@ -236,19 +238,25 @@ export default {
     height: 0,
     showSelectColumn: false,
     inputVisible: false,
-    inputValue: "",
+    inputValue: ""
   }),
   methods: {
     async initTableData() {
       this.loading = true;
-      this.imagecount = await _dataset.getDatasetImageCount(this.$route.params.id);
+      this.imagecount = await _dataset.getDatasetImageCount(
+        this.$route.params.id
+      );
       this.fetchData();
     },
 
     async fetchData() {
       let offset = (this.currentPage - 1) * 20;
       let limit = 20;
-      let imagelist = (await _dataset.getImagesByDataset(this.$route.params.id, offset, limit))["content"];
+      let imagelist = (await _dataset.getImagesByDataset(
+        this.$route.params.id,
+        offset,
+        limit
+      ))["content"];
       for (let i in imagelist) {
         imagelist[i].inputVisible = false;
         imagelist[i].inputTags = [];
@@ -256,13 +264,13 @@ export default {
       }
       this.imagelist = imagelist;
       this.loading = false;
-      
+
       await this.getDatasetRelatedTags(this.$route.params.id);
     },
 
     async getDatasetRelatedTags(datasetid) {
       let res = await _dataset.getDatasetRelatedTags(datasetid);
-      res.sort(function (a, b) {
+      res.sort(function(a, b) {
         return a.title_en > b.title_en;
       });
       this.datasetTags = res;
@@ -293,15 +301,15 @@ export default {
 
       let config = {
         headers: {
-          "Content-Type": "multipart/form-data",
-        },
+          "Content-Type": "multipart/form-data"
+        }
       };
       let response = await _image.uploadImage(formData);
       var src = URL.createObjectURL(upload.file);
       var imgObj = new Image();
       imgObj.src = src;
       let that = this;
-      imgObj.onload = async function () {
+      imgObj.onload = async function() {
         that.width = imgObj.width;
         that.height = imgObj.height;
         let nodeid = response.uuid;
@@ -309,7 +317,7 @@ export default {
           storageobjectid: nodeid,
           datasetid: that.$route.params.id,
           width: that.width,
-          height: that.height,
+          height: that.height
         };
         await _image.addImage(image);
         that.initTableData();
@@ -325,9 +333,9 @@ export default {
     },
     handleExceed(files, fileList) {
       this.$message.warning(
-        `当前限制选择 3 个文件，本次选择了 ${files.length} 个文件，共选择了 ${
-          files.length + fileList.length
-        } 个文件`
+        `当前限制选择 3 个文件，本次选择了 ${
+          files.length
+        } 个文件，共选择了 ${files.length + fileList.length} 个文件`
       );
     },
     beforeRemove(file, fileList) {
@@ -337,19 +345,19 @@ export default {
       this.$confirm("此操作将删除该图片, 是否继续?", "提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
-        type: "warning",
+        type: "warning"
       })
         .then(() => {
           this.handleDelete(index, row);
           this.$message({
             type: "success",
-            message: "删除成功!",
+            message: "删除成功!"
           });
         })
         .catch(() => {
           this.$message({
             type: "info",
-            message: "已取消删除",
+            message: "已取消删除"
           });
         });
     },
@@ -370,7 +378,7 @@ export default {
     },
     async label() {
       let relations = [];
-      let imageidList = this.selectedImages.map((image) => image.uuid);
+      let imageidList = this.selectedImages.map(image => image.uuid);
       let tagidList = this.selectedTags;
       for (let i in imageidList) {
         for (let j in tagidList) {
@@ -381,9 +389,9 @@ export default {
       await _image.batchTag(relations);
       this.$message({
         type: "success",
-        message: "一键标注成功!",
+        message: "一键标注成功!"
       });
-      
+
       this.showSelectColumn = false;
       this.selectedTags = [];
       this.selectedImages = [];
@@ -422,16 +430,13 @@ export default {
     },
     rejectRecmdTag(row, index, tag) {
       row.recmdTags.splice(index, 1);
-    },
+    }
   },
   mounted() {
     this.initTableData();
-  },
+  }
 };
 </script>
-
-
-
 
 <!--###############################################################################-->
 <style lang="scss" scoped>

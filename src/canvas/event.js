@@ -24,16 +24,7 @@ export function updateXY(originX, originY, event) {
   return [x, y, width, height];
 }
 
-export function getPolygon(
-  canvasPolygon,
-  picPolygon,
-  currentX,
-  currentY,
-  scale,
-  event
-) {
+export function getPolygon(canvasPolygon, picPolygon, canvas, event) {
   canvasPolygon.push([event.offsetX, event.offsetY]);
-  picPolygon.push(
-    canvas2PicCoor(event.offsetX, event.offsetY, currentX, currentY, scale)
-  );
+  picPolygon.push(canvas2PicCoor(event.offsetX, event.offsetY, canvas));
 }
