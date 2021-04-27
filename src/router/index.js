@@ -1,10 +1,10 @@
-import Vue from 'vue'
-import Router from 'vue-router'
+import Vue from "vue";
+import Router from "vue-router";
 
-Vue.use(Router)
+Vue.use(Router);
 
 /* Layout */
-import Layout from '@/layout'
+import Layout from "@/layout";
 
 /**
  * Note: 路由配置项
@@ -27,112 +27,114 @@ import Layout from '@/layout'
 // 公共路由
 export const constantRoutes = [
   {
-    path: '/redirect',
+    path: "/redirect",
     component: Layout,
     hidden: true,
     children: [
       {
-        path: '/redirect/:path(.*)',
-        component: (resolve) => require(['@/views/redirect'], resolve)
+        path: "/redirect/:path(.*)",
+        component: resolve => require(["@/views/redirect"], resolve)
       }
     ]
   },
   {
-    path: '/login',
-    component: (resolve) => require(['@/views/login'], resolve),
+    path: "/login",
+    component: resolve => require(["@/views/login"], resolve),
     hidden: true
   },
   {
-    path: '/register',
-    component: (resolve) => require(['@/views/register'], resolve),
+    path: "/register",
+    component: resolve => require(["@/views/register"], resolve),
     hidden: true
   },
   {
-    path: '/404',
-    component: (resolve) => require(['@/views/error/404'], resolve),
+    path: "/404",
+    component: resolve => require(["@/views/error/404"], resolve),
     hidden: true
   },
   {
-    path: '/401',
-    component: (resolve) => require(['@/views/error/401'], resolve),
+    path: "/401",
+    component: resolve => require(["@/views/error/401"], resolve),
     hidden: true
   },
   {
-    path: '',
+    path: "",
     component: Layout,
-    redirect: 'index',
+    redirect: "index",
     children: [
       {
-        path: 'index',
-        component: (resolve) => require(['@/views/index'], resolve),
-        name: '首页',
-        meta: { title: '首页', icon: 'dashboard', noCache: true, affix: true }
+        path: "index",
+        component: resolve => require(["@/views/index"], resolve),
+        name: "首页",
+        meta: { title: "首页", icon: "dashboard", noCache: true, affix: true }
       }
     ]
   },
   {
-    path: '/user',
-    component: Layout,
-    hidden: true,
-    redirect: 'noredirect',
-    children: [
-      {
-        path: 'profile',
-        component: (resolve) => require(['@/views/system/user/profile/index'], resolve),
-        name: 'Profile',
-        meta: { title: '个人中心', icon: 'user' }
-      }
-    ]
-  },
-  {
-    path: '/dict',
+    path: "/user",
     component: Layout,
     hidden: true,
+    redirect: "noredirect",
     children: [
       {
-        path: 'type/data/:dictId(\\d+)',
-        component: (resolve) => require(['@/views/system/dict/data'], resolve),
-        name: 'Data',
-        meta: { title: '字典数据', icon: '' }
+        path: "profile",
+        component: resolve =>
+          require(["@/views/system/user/profile/index"], resolve),
+        name: "Profile",
+        meta: { title: "个人中心", icon: "user" }
       }
     ]
   },
   {
-    path: '/job',
+    path: "/dict",
     component: Layout,
     hidden: true,
     children: [
       {
-        path: 'log',
-        component: (resolve) => require(['@/views/monitor/job/log'], resolve),
-        name: 'JobLog',
-        meta: { title: '调度日志' }
+        path: "type/data/:dictId(\\d+)",
+        component: resolve => require(["@/views/system/dict/data"], resolve),
+        name: "Data",
+        meta: { title: "字典数据", icon: "" }
       }
     ]
   },
   {
-    path: '/gen',
+    path: "/job",
     component: Layout,
     hidden: true,
     children: [
       {
-        path: 'edit/:tableId(\\d+)',
-        component: (resolve) => require(['@/views/tool/gen/editTable'], resolve),
-        name: 'GenEdit',
-        meta: { title: '修改生成配置' }
+        path: "log",
+        component: resolve => require(["@/views/monitor/job/log"], resolve),
+        name: "JobLog",
+        meta: { title: "调度日志" }
       }
     ]
   },
   {
-    path: "/dataset", name: "数据集",
-    meta: { title: "数据集", icon: 'dashboard' },
+    path: "/gen",
+    component: Layout,
+    hidden: true,
+    children: [
+      {
+        path: "edit/:tableId(\\d+)",
+        component: resolve => require(["@/views/tool/gen/editTable"], resolve),
+        name: "GenEdit",
+        meta: { title: "修改生成配置" }
+      }
+    ]
+  },
+  {
+    path: "/dataset",
+    name: "数据集",
+    meta: { title: "数据集", icon: "dashboard" },
     component: Layout,
     children: [
       {
         path: "list",
         name: "数据集列表",
         meta: { title: "数据集列表", icon: "tree" },
-        component: () => import("@/views/dataset/dataset_list"),
+        component: () => import("@/views/dataset/dataset_list")
       },
       {
         path: "edit/:id",
@@ -141,7 +143,7 @@ export const constantRoutes = [
         component: () => import("@/views/dataset/dataset_editor"),
         hidden: true
       },
-      
+
       {
         path: "view/:id",
         name: "数据集详情",
@@ -162,14 +164,27 @@ export const constantRoutes = [
         meta: { title: "图像编辑", icon: "fa fa-list-alt" },
         component: () => import("@/views/dataset/image_editor"),
         hidden: true
-      },
-
+      }
     ]
   },
-]
+  {
+    path: "",
+    name: "饮食图像处理",
+    meta: { title: "饮食图像处理", icon: "fa fa-book" },
+    component: Layout,
+    children: [
+      {
+        path: "/imageprocessing/classification",
+        name: "饮食图像识别",
+        meta: { title: "饮食图像识别", icon: "tree" },
+        component: () => import("@/views/imageprocessing/classification")
+      }
+    ]
+  }
+];
 
 export default new Router({
-  mode: 'history', // 去掉url中的#
+  mode: "history", // 去掉url中的#
   scrollBehavior: () => ({ y: 0 }),
   routes: constantRoutes
-})
+});
