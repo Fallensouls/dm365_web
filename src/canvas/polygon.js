@@ -1,11 +1,6 @@
 import { pic2CanvasCoor, drawPoint, drawLine } from "@/canvas/util";
 
-export function drawPolygonByPicCoors(
-  ctx,
-  coordinates,
-  canvas,
-  isClosed = false
-) {
+export function drawPolygonByPicCoors(ctx, coordinates, canvas, isClosed) {
   ctx.lineWidth = 4;
   ctx.strokeStyle = "#1E90FF";
   ctx.fillStyle = "#1E90FF";
@@ -30,8 +25,6 @@ export function drawPolygonByPicCoors(
     drawLine(ctx, locStart, locEnd);
   }
   drawPoint(ctx, x, y);
-  ctx.lineWidth = 4;
-  ctx.strokeStyle = "#1E90FF";
   if (isClosed) {
     ctx.lineTo(x0, y0);
   }

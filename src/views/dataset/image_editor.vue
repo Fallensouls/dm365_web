@@ -41,16 +41,25 @@
             type="primary"
             size="mini"
             @click="labelSegm()"
-            :disabled="isLabelPolygon == true && picPolygon.length < 3"
+            :disabled="isLabelPolygon && picPolygon.length < 3"
             >{{
               isLabelPolygon == false ? "标注轮廓" : "完成轮廓标注"
             }}</el-button
           >
-          <el-button type="primary" size="mini" @click="cancel()"
-            >返回</el-button
+          <el-button
+            type="primary"
+            size="mini"
+            @click="cancel()"
+            :disabled="picPolygon.length == 0"
+            >撤销</el-button
           >
         </span>
         <span class="center"> 缩放倍率：{{ scale }} </span>
+        <span class="right">
+          <el-button type="primary" size="mini" @click="reset()"
+            >重置</el-button
+          ></span
+        >
       </div>
 
       <br />
@@ -274,6 +283,18 @@ export default {
         nX: -width / 2,
         nY: -height / 2
       });
+      this.drawOriginalImage();
+      this.drawAnnotations();
+    },
+
+    reset() {
+      this.currentX = 0;
+      this.currentY = 0;
+      this.scale = 1;
+      let { width, height } = this;
+      clearCanvas(this.imgCtx, width, height);
+      clearCanvas(this.labelCtx, width, height);
+      clearCanvas(this.tmpLabelCtx, width, height);
       this.drawOriginalImage();
       this.drawAnnotations();
     },
@@ -528,6 +549,19 @@ export default {
       }
     },
 
+    cancel() {
+      this.canvasPolygon.pop();
+      this.picPolygon.pop();
+      if (this.picPolygon.length == 0) {
+        this.isLabelPolygon = false;
+        this.tempLabelCanvas.style.cursor = "default";
+      }
+      const { width, height } = this;
+      clearCanvas(this.tmpLabelCtx, width, height);
+      let params = new CanvasParams(this.currentX, this.currentY, this.scale);
+      drawPolygonByPicCoors(this.tmpLabelCtx, this.picPolygon, params, false);
+    },
+
     finishPolygon() {
       this.Trigger = false;
       const { width, height } = this;
@@ -714,10 +748,6 @@ export default {
       } else {
         this.finishPolygon();
       }
-    },
-
-    cancel() {
-      this.$router.replace("/dataset");
     },
 
     display() {

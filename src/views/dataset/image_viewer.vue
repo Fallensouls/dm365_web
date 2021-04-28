@@ -27,6 +27,11 @@
           >
         </span>
         <span class="center"> 缩放倍率：{{ scale }} </span>
+        <!-- <span class="right">
+          <el-button type="primary" size="mini" @click="reset()"
+            >重置</el-button
+          ></span
+        > -->
       </div>
 
       <br />
@@ -142,6 +147,17 @@ export default {
         nX: -width / 2,
         nY: -height / 2
       });
+      this.drawOriginalImage();
+      this.drawAnnotations();
+    },
+
+    reset() {
+      this.currentX = 0;
+      this.currentY = 0;
+      this.scale = 1;
+      let { width, height } = this;
+      clearCanvas(this.imgCtx, width, height);
+      clearCanvas(this.labelCtx, width, height);
       this.drawOriginalImage();
       this.drawAnnotations();
     },
