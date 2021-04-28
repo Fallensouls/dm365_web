@@ -50,10 +50,15 @@
         <el-table-column label="目标类别" prop="title_cn" align="center">
         </el-table-column>
 
-        <el-table-column prop="objkeypoint" label="坐标点" align="center">
+        <el-table-column
+          prop="objkeypoint"
+          label="坐标点"
+          align="center"
+          width="300"
+        >
         </el-table-column>
 
-        <el-table-column label="操作" align="center" width="230">
+        <el-table-column label="操作" align="center" width="250">
           <template slot-scope="scope">
             <el-row>
               <el-switch

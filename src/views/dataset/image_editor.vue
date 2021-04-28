@@ -24,9 +24,9 @@
           ref="ctx"
           :width="clip.width"
           :height="clip.height"
-          @mouseup="finishBBox($event)"
-          @mousemove="updateBBox($event)"
-          @mousedown="startBBox($event)"
+          @mouseup="handleMouseUp($event)"
+          @mousemove="handleMouseMove($event)"
+          @mousedown="handleMouseDown($event)"
           @click="labelPolygon($event)"
         >
         </canvas>
@@ -37,9 +37,15 @@
           <el-button type="primary" size="mini" @click="labelBbox()"
             >标注边框</el-button
           >
-          <el-button type="primary" size="mini" @click="labelSegm()">{{
-            isLabelPolygon == false ? "标注轮廓" : "完成轮廓标注"
-          }}</el-button>
+          <el-button
+            type="primary"
+            size="mini"
+            @click="labelSegm()"
+            :disabled="isLabelPolygon == true && picPolygon.length < 3"
+            >{{
+              isLabelPolygon == false ? "标注轮廓" : "完成轮廓标注"
+            }}</el-button
+          >
           <el-button type="primary" size="mini" @click="cancel()"
             >返回</el-button
           >
@@ -64,40 +70,48 @@
 
     <div class="second" style="margin-right:-4px;">
       <p style="text-align:center">已保存的目标</p>
-      <el-table :data="objectList" stripe border style="width: 100%">
+      <el-table
+        :data="objectList"
+        stripe
+        height="300"
+        border
+        style="width: 100%"
+      >
         <el-table-column label="目标类别" prop="title_cn" align="center">
         </el-table-column>
 
-        <el-table-column prop="objkeypoint" label="坐标点" align="center">
+        <el-table-column
+          prop="objkeypoint"
+          label="坐标点"
+          align="center"
+          width="300"
+        >
         </el-table-column>
 
-        <el-table-column label="操作" align="center" width="230">
+        <el-table-column label="操作" align="center" width="250">
           <template slot-scope="scope">
-            <el-row>
-              <el-switch
-                v-model="scope.row.display"
-                active-text="显示"
-                inactive-text="不显示"
-                @change="display()"
-              >
-              </el-switch>
-            </el-row>
-            <el-row>
-              <el-button
-                size="mini"
-                type="primary"
-                style="margin-left:10px"
-                @click="changeAnnotation(scope.$index, scope.row)"
-                >修改</el-button
-              >
-              <el-button
-                size="mini"
-                type="danger"
-                style="margin-left:10px"
-                @click="deleteAnnotation(scope.$index, scope.row)"
-                >删除</el-button
-              >
-            </el-row>
+            <el-switch
+              v-model="scope.row.display"
+              active-text="显示"
+              inactive-text="不显示"
+              @change="display()"
+            >
+            </el-switch>
+
+            <el-button
+              size="small"
+              type="text"
+              style="margin-left:10px"
+              @click="changeAnnotation(scope.$index, scope.row)"
+              >修改</el-button
+            >
+            <el-button
+              size="small"
+              type="text"
+              style="margin-left:10px"
+              @click="deleteAnnotation(scope.$index, scope.row)"
+              >删除</el-button
+            >
           </template>
         </el-table-column>
       </el-table>
@@ -106,7 +120,13 @@
         <span class="center">待保存的目标</span>
       </div>
       <div style="margin-top:58px">
-        <el-table :data="labelObjectList" stripe style="width:100%" border>
+        <el-table
+          :data="labelObjectList"
+          stripe
+          height="300"
+          style="width:100%"
+          border
+        >
           <el-table-column
             label="目标类别"
             prop="title_cn"
@@ -134,22 +154,32 @@
               </el-select>
             </template>
           </el-table-column>
-          <el-table-column prop="objkeypoint" label="坐标点" align="center">
+          <el-table-column
+            prop="objkeypoint"
+            label="坐标点"
+            align="center"
+            width="300"
+          >
           </el-table-column>
-          <el-table-column label="操作" align="center" width="230">
+          <el-table-column label="操作" align="center" width="250">
             <template slot-scope="scope">
-              <el-switch v-model="scope.row.display" @change="display()">
+              <el-switch
+                v-model="scope.row.display"
+                active-text="显示"
+                inactive-text="不显示"
+                @change="display()"
+              >
               </el-switch>
               <el-button
-                size="mini"
-                type="primary"
+                size="small"
+                type="text"
                 style="margin-left:10px"
                 @click="saveAnnotation(scope.$index, scope.row)"
                 >保存</el-button
               >
               <el-button
-                size="mini"
-                type="danger"
+                size="small"
+                type="text"
                 style="margin-left:10px"
                 @click="removeAnnotation(scope.$index, scope.row)"
                 >删除</el-button
@@ -183,11 +213,7 @@ import {
   canvas2PicBBox
 } from "@/canvas/bbox";
 
-import {
-  drawPolygonByCanvasCoors,
-  drawPolygonByPicCoors,
-  drawMultiplePolygon
-} from "@/canvas/polygon";
+import { drawPolygonByPicCoors, drawMultiplePolygon } from "@/canvas/polygon";
 
 export default {
   props: {
@@ -359,7 +385,7 @@ export default {
 
       canvas.onmouseup = function() {
         this.moveFlag = false;
-        canvas.style.cursor = "default";
+        // canvas.style.cursor = "default";
       };
 
       canvas.onmousewheel = canvas.onwheel = function(event) {
@@ -431,23 +457,35 @@ export default {
     },
 
     // bbox
-    startBBox: function(event) {
+    handleMouseDown: function(event) {
       if (this.isLabelBBox) {
         [this.originX, this.originY] = getOriginXY(event);
         this.Trigger = true;
       }
     },
 
-    updateBBox: function(event) {
+    handleMouseMove: function(event) {
       if (this.isLabelBBox && this.Trigger) {
         let [x, y, w, h] = updateXY(this.originX, this.originY, event);
         const { width, height } = this;
         clearCanvas(this.tmpLabelCtx, width, height);
         drawBoundingBox(this.tmpLabelCtx, x, y, w, h);
       }
+      if (this.isLabelPolygon) {
+        const { width, height } = this;
+        clearCanvas(this.tmpLabelCtx, width, height);
+        let params = new CanvasParams(this.currentX, this.currentY, this.scale);
+        drawPolygonByPicCoors(this.tmpLabelCtx, this.picPolygon, params, false);
+        this.tmpLabelCtx.moveTo(
+          this.canvasPolygon[this.canvasPolygon.length - 1][0],
+          this.canvasPolygon[this.canvasPolygon.length - 1][1]
+        );
+        this.tmpLabelCtx.lineTo(event.offsetX, event.offsetY);
+        this.tmpLabelCtx.stroke();
+      }
     },
 
-    finishBBox: function(event) {
+    handleMouseUp: function(event) {
       if (this.isLabelBBox) {
         let [x, y, w, h] = updateXY(this.originX, this.originY, event);
         this.Trigger = false;
@@ -486,12 +524,7 @@ export default {
       if (this.isLabelPolygon) {
         let params = new CanvasParams(this.currentX, this.currentY, this.scale);
         getPolygon(this.canvasPolygon, this.picPolygon, params, event);
-        drawPolygonByCanvasCoors(
-          this.tmpLabelCtx,
-          event.offsetX,
-          event.offsetY,
-          this.canvasPolygon.length == 1
-        );
+        drawPolygonByPicCoors(this.tmpLabelCtx, this.picPolygon, params, false);
       }
     },
 
@@ -502,7 +535,6 @@ export default {
       let params = new CanvasParams(this.currentX, this.currentY, this.scale);
       drawPolygonByPicCoors(this.labelCtx, this.picPolygon, params, true);
       var keypointStr = "";
-
       for (var i in this.picPolygon) {
         keypointStr =
           keypointStr +

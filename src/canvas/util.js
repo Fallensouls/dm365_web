@@ -72,6 +72,18 @@ export function drawImage(ctx, img, canvas) {
   ctx.restore();
 }
 
+export function drawPoint(ctx, x, y) {
+  ctx.beginPath();
+  ctx.arc(x, y, 4, 0, 2 * Math.PI);
+  ctx.fill();
+}
+
+export function drawLine(ctx, locStart, locEnd) {
+  ctx.moveTo(locStart[0], locStart[1]);
+  ctx.lineTo(locEnd[0], locEnd[1]);
+  ctx.stroke();
+}
+
 export function randomColorize(tagSet) {
   let colorsMap = new Map();
   let colors = randomColor({
