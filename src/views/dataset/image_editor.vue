@@ -112,7 +112,8 @@
               type="text"
               style="margin-left:10px"
               @click="changeAnnotation(scope.$index, scope.row)"
-              >修改</el-button
+              :disabled="!scope.row.change"
+              >保存</el-button
             >
             <el-button
               size="small"
@@ -210,8 +211,12 @@ import { getFile } from "@/api/node/file";
 import { CanvasParams } from "@/canvas/params";
 import { getOriginXY, updateXY, getPolygon } from "@/canvas/event";
 import {
+  canvas2PicCoor,
+  pic2CanvasCoor,
+  isPointSelected,
   clearCanvas,
   drawImage,
+  drawPoint,
   updateCurrentXY,
   randomColorize
 } from "@/canvas/util";
@@ -256,7 +261,7 @@ export default {
     deg: 0, //旋转角度
     isLabelBBox: false,
     isLabelPolygon: false,
-    Trigger: false, //触发器，指示当前是否需要监听鼠标移动事件
+    trigger: false, //触发器，指示当前是否需要监听鼠标移动事件
     originX: 0, //鼠标按下时的起点坐标
     originY: 0,
     currentX: 0,
@@ -310,60 +315,16 @@ export default {
         var bbox = canvas.getBoundingClientRect();
         var x = event.clientX - bbox.left * (canvas.width / bbox.width);
         var y = event.clientY - bbox.top * (canvas.height / bbox.height);
-        var px, py;
-        // [px, py] = canvas2PicCoor(
-        //   x,
-        //   y,
-        //   this.currentX,
-        //   this.currentY,
-        //   this.scale
-        // );
         this.moveFlag = true;
         this.moveStartx = x;
         this.moveStarty = y;
-        // if (this.moveBoxFlag) {
-        //     this.moveBoxFlag = false;
-        //     // let [x, y] = _this.changeToPicCoor(event.clientX, event.clientY);
-        //     _this.imageinfo.label[this.moveI].point[this.moveJ][0] = px;
-        //     _this.imageinfo.label[this.moveI].point[this.moveJ][1] = py;
-        //     var keypoint_str = ""
-        //     for (var i in _this.imageinfo.label[this.moveI].point)
-        //     {
-        //         keypoint_str=keypoint_str+"("+String(_this.imageinfo.label[this.moveI].point[i][0])+"  "+String(_this.imageinfo.label[this.moveI].point[i][1])+")"+"  ";
-        //     }
-        //     _this.imageinfo.label[this.moveI].keyPoint = keypoint_str
-        //     console.log(_this.imageinfo.label)
-        //     _this.drawPolygons();
-        //     _this.savelabels();
-        //     return
-        // }
-        // if (!_this.selected) {
-        //     for(let i = 0; i < _this.imageinfo.label.length; i++) {
-        //         for(let j = 0; j < _this.imageinfo.label[i].point.length; j++) {
-        //             let target_x = _this.imageinfo.label[i].point[j][0];
-        //             let target_y = _this.imageinfo.label[i].point[j][1];
-        //             [target_x, target_y] = _this.changeToCanvasCoor(target_x, target_y);
-        //             if (_this.isPointSelected(target_x, target_y, x, y)) {
-        //                 console.log("draw")
-        //                 _this.selected = !_this.selected;
-        //                 _this.labelCtx.moveTo(target_x, target_y)
-        //                 _this.labelCtx.arc(target_x, target_y, 5, 0, 2*Math.PI);
-        //                 _this.labelCtx.stroke();
-        //                 this.moveI = i;
-        //                 this.moveJ = j;
-        //                 break;
-        //             }
-        //         }
-        //     }
-        // } else {
-        //     let target_x = _this.imageinfo.label[this.moveI].point[this.moveJ][0];
-        //     let target_y = _this.imageinfo.label[this.moveI].point[this.moveJ][1];
-        //     [target_x, target_y] = _this.changeToCanvasCoor(target_x, target_y);
-        //     if (_this.isPointSelected(target_x, target_y, x, y)) {
-        //         this.moveBoxFlag = true;
-        //     }
-        //     _this.selected = !_this.selected;
-        // }
+        let move = _this.checkMoveObject(x, y);
+        if (move) {
+          this.moveI = move[0];
+          this.moveJ = move[1];
+          this.moveObjectFlag = true;
+          this.moveFlag = false;
+        }
       };
       canvas.onmousemove = function(event) {
         var bbox = canvas.getBoundingClientRect();
@@ -386,27 +347,32 @@ export default {
               _this.currentY,
               _this.scale
             );
-            drawPolygonByPicCoors(_this.labelCtx, _this.picPolygon, params);
+            drawPolygonByPicCoors(
+              _this.labelCtx,
+              _this.picPolygon,
+              params,
+              false
+            );
           }
           this.moveStartx += moveDisx;
           this.moveStarty += moveDisy;
         }
-        // if (this.moveBoxFlag) {
-        //     var x = event.clientX - bbox.left *(canvas.width / bbox.width)
-        //     var y = event.clientY - bbox.top * (canvas.height / bbox.height)
-        //     let [px, py] = _this.changeToPicCoor(x, y);
-        //     _this.imageinfo.label[this.moveI].point[this.moveJ][0] = px;
-        //     _this.imageinfo.label[this.moveI].point[this.moveJ][1] = py;
-        //     _this.drawPolygons();
-        //     _this.labelCtx.moveTo(x, y)
-        //     _this.labelCtx.arc(x, y, 5, 0, 2*Math.PI);
-        //     _this.labelCtx.stroke();
-        // }
+        if (this.moveObjectFlag) {
+          var x = event.clientX - bbox.left * (canvas.width / bbox.width);
+          var y = event.clientY - bbox.top * (canvas.height / bbox.height);
+          _this.moveObject(x, y, this.moveI, this.moveJ);
+          _this.drawAnnotations();
+        }
       };
 
       canvas.onmouseup = function() {
-        this.moveFlag = false;
-        // canvas.style.cursor = "default";
+        if (this.moveFlag) {
+          this.moveFlag = false;
+        }
+        if (this.moveObjectFlag) {
+          this.moveObjectFlag = false;
+          _this.finishMoveObject(this.moveI);
+        }
       };
 
       canvas.onmousewheel = canvas.onwheel = function(event) {
@@ -438,11 +404,124 @@ export default {
               _this.currentY,
               _this.scale
             );
-            drawPolygonByPicCoors(_this.labelCtx, _this.picPolygon, params);
+            drawPolygonByPicCoors(
+              _this.labelCtx,
+              _this.picPolygon,
+              params,
+              false
+            );
           }
           // event.preventDefault  && event.preventDefault(); // 阻止默认事件，可能在滚动的时候，浏览器窗口也会滚动
         }
       };
+    },
+
+    checkMoveObject(x, y) {
+      let params = new CanvasParams(this.currentX, this.currentY, this.scale);
+      let [px, py] = canvas2PicCoor(x, y, params);
+      let objectList = this.objectList.concat(this.labelObjectList);
+      let src = [px, py];
+      for (let i in objectList) {
+        // is bbox or not
+        let coordinates = [];
+        if (this.isBox(objectList[i].shape)) {
+          // 检查四个顶点即可
+          coordinates.push([
+            objectList[i].subimagex1,
+            objectList[i].subimagey1
+          ]);
+          coordinates.push([
+            objectList[i].subimagex1,
+            objectList[i].subimagey2
+          ]);
+          coordinates.push([
+            objectList[i].subimagex2,
+            objectList[i].subimagey1
+          ]);
+          coordinates.push([
+            objectList[i].subimagex2,
+            objectList[i].subimagey2
+          ]);
+        } else {
+          // 检查多边形的所有顶点
+          coordinates = objectList[i].shape;
+        }
+        for (let j in coordinates) {
+          let target = [coordinates[j][0], coordinates[j][1]];
+          if (isPointSelected(src, target)) {
+            this.labelCtx.fillStyle = "#1E90FF";
+            let [cx, cy] = pic2CanvasCoor(target[0], target[1], params);
+            drawPoint(this.labelCtx, cx, cy);
+            this.tempLabelCanvas.style.cursor = "move";
+            return [i, j];
+          }
+        }
+      }
+      return false;
+    },
+
+    moveObject(x, y, moveI, moveJ) {
+      let params = new CanvasParams(this.currentX, this.currentY, this.scale);
+      let [px, py] = canvas2PicCoor(x, y, params);
+      let object;
+      if (moveI < this.objectList.length) {
+        object = this.objectList[moveI];
+      } else {
+        moveI -= this.objectList.length;
+        object = this.labelObjectList[moveI];
+      }
+      if (this.isBox(object.shape)) {
+        switch (moveJ) {
+          case "0":
+            object.subimagex1 = px;
+            object.subimagey1 = py;
+            break;
+          case "1":
+            object.subimagex1 = px;
+            object.subimagey2 = py;
+            break;
+          case "2":
+            object.subimagex2 = px;
+            object.subimagey1 = py;
+            break;
+          case "3":
+            object.subimagex2 = px;
+            object.subimagey2 = py;
+        }
+      } else {
+        object.shape[moveJ][0] = px;
+        object.shape[moveJ][1] = py;
+      }
+    },
+
+    finishMoveObject(moveI) {
+      this.tempLabelCanvas.style.cursor = "default";
+      let object;
+      if (moveI < this.objectList.length) {
+        object = this.objectList[moveI];
+        object.change = true;
+      } else {
+        moveI -= this.objectList.length;
+        object = this.labelObjectList[moveI];
+      }
+      if (this.isBox(object.shape)) {
+        object.objkeypoint = `left: ${object.subimagex1} top: ${
+          object.subimagey1
+        } right: ${object.subimagex2} bottom: ${object.subimagey2}`;
+      } else {
+        let keypointStr = "";
+        for (let i in object.shape) {
+          keypointStr =
+            keypointStr +
+            "(" +
+            String(object.shape[i][0]) +
+            "  " +
+            String(object.shape[i][1]) +
+            ")" +
+            "  ";
+        }
+        object.objkeypoint = keypointStr;
+      }
     },
 
     // image
@@ -477,16 +556,15 @@ export default {
       this.scale = scale;
     },
 
-    // bbox
     handleMouseDown: function(event) {
       if (this.isLabelBBox) {
         [this.originX, this.originY] = getOriginXY(event);
-        this.Trigger = true;
+        this.trigger = true;
       }
     },
 
     handleMouseMove: function(event) {
-      if (this.isLabelBBox && this.Trigger) {
+      if (this.isLabelBBox && this.trigger) {
         let [x, y, w, h] = updateXY(this.originX, this.originY, event);
         const { width, height } = this;
         clearCanvas(this.tmpLabelCtx, width, height);
@@ -509,7 +587,7 @@ export default {
     handleMouseUp: function(event) {
       if (this.isLabelBBox) {
         let [x, y, w, h] = updateXY(this.originX, this.originY, event);
-        this.Trigger = false;
+        this.trigger = false;
         const { width, height } = this;
         clearCanvas(this.tmpLabelCtx, width, height);
         drawBoundingBox(this.labelCtx, x, y, w, h);
@@ -528,6 +606,11 @@ export default {
         this.isLabelBBox = false;
         this.tempLabelCanvas.style.cursor = "default";
       }
+    },
+
+    // bbox
+    isBox(shape) {
+      return shape == null || shape.length == 0;
     },
 
     drawBoundingBoxes(objectList) {
@@ -563,7 +646,7 @@ export default {
     },
 
     finishPolygon() {
-      this.Trigger = false;
+      this.trigger = false;
       const { width, height } = this;
       clearCanvas(this.tmpLabelCtx, width, height);
       let params = new CanvasParams(this.currentX, this.currentY, this.scale);
@@ -635,6 +718,7 @@ export default {
         "content"
       ];
       for (let i in objectList) {
+        objectList[i].change = false;
         objectList[i].display = true;
         if (objectList[i].tags.length > 0) {
           objectList[i].title_cn = objectList[i].tags[0].title_cn;
@@ -733,6 +817,7 @@ export default {
 
     async changeAnnotation(index, row) {
       await _image.updateImage(row.uuid, row);
+      row.change = false;
     },
 
     // events

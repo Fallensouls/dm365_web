@@ -27,11 +27,11 @@
           >
         </span>
         <span class="center"> 缩放倍率：{{ scale }} </span>
-        <!-- <span class="right">
+        <span class="right">
           <el-button type="primary" size="mini" @click="reset()"
             >重置</el-button
           ></span
-        > -->
+        >
       </div>
 
       <br />
@@ -197,7 +197,6 @@ export default {
 
       canvas.onmouseup = function() {
         this.moveFlag = false;
-        canvas.style.cursor = "default";
       };
 
       canvas.onmousewheel = canvas.onwheel = function(event) {

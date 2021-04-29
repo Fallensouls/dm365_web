@@ -98,3 +98,10 @@ export function randomColorize(tagSet) {
 }
 
 var randomColor = require("randomcolor"); // import the script
+
+export function isPointSelected(src, target) {
+  let a = src[0] - target[0];
+  let b = src[1] - target[1];
+
+  return Math.sqrt(a * a + b * b) < 20;
+}
