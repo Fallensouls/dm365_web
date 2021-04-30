@@ -70,12 +70,17 @@
       <el-table-column label="操作" align="center" width="400">
         <template slot-scope="scope">
           <router-link :to="`/dataset/edit/${scope.row.uuid}`">
-            <el-button size="mini" style="margin-left: 8px">编辑</el-button>
+            <el-button
+              size="small"
+              type="text"
+              style="margin-left: 10px;font-size: 14px"
+              >编辑</el-button
+            >
           </router-link>
           <el-button
-            size="mini"
-            type="primary"
-            style="margin-left: 8px"
+            size="small"
+            type="text"
+            style="margin-left: 10px;font-size: 14px"
             @click="findDatasetRelatedTags(scope.row)"
             >类别标签</el-button
           >
@@ -90,26 +95,26 @@
             :limit="1"
           >
             <el-button
-              size="mini"
-              type="primary"
-              style="margin-left: 8px"
+              size="small"
+              type="text"
+              style="margin-left: 10px;font-size: 14px"
               @click="importDataset(scope.row)"
               >导入</el-button
             >
           </el-upload>
 
           <el-button
-            size="mini"
-            type="primary"
-            style="margin-left: 8px"
+            size="small"
+            type="text"
+            style="margin-left: 10px;font-size: 14px"
             @click="exportDataset(scope.row)"
             >导出</el-button
           >
 
           <el-button
-            size="mini"
-            type="danger"
-            style="margin-left: 8px"
+            size="small"
+            type="text"
+            style="margin-left: 10px;font-size: 14px"
             @click="deleteDataset(scope.$index, scope.row)"
             >删除</el-button
           >

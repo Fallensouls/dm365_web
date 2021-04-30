@@ -187,12 +187,17 @@
       <el-table-column label="操作" align="center" min-width="120">
         <template slot-scope="scope">
           <router-link :to="`/dataset/image/edit/${scope.row.uuid}`">
-            <el-button size="mini">编辑</el-button>
+            <el-button
+              size="small"
+              type="text"
+              style="margin-left: 10px;font-size: 14px"
+              >编辑</el-button
+            >
           </router-link>
           <el-button
-            size="mini"
-            type="danger"
-            style="margin-left: 10px"
+            size="small"
+            type="text"
+            style="margin-left: 10px;font-size: 14px"
             @click="deleteImage(scope.$index, scope.row)"
             >删除</el-button
           >

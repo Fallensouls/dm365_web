@@ -50,8 +50,8 @@
             type="primary"
             size="mini"
             @click="cancel()"
-            :disabled="picPolygon.length == 0"
-            >撤销</el-button
+            :disabled="!isLabelBBox && !isLabelPolygon"
+            >取消</el-button
           >
         </span>
         <span class="center"> 缩放倍率：{{ scale }} </span>
@@ -570,7 +570,7 @@ export default {
         clearCanvas(this.tmpLabelCtx, width, height);
         drawBoundingBox(this.tmpLabelCtx, x, y, w, h);
       }
-      if (this.isLabelPolygon) {
+      if (this.isLabelPolygon && this.picPolygon.length > 0) {
         const { width, height } = this;
         clearCanvas(this.tmpLabelCtx, width, height);
         let params = new CanvasParams(this.currentX, this.currentY, this.scale);
@@ -633,16 +633,22 @@ export default {
     },
 
     cancel() {
+      if (this.isLabelBBox) {
+        this.isLabelBBox = false;
+        this.tempLabelCanvas.style.cursor = "default";
+        return;
+      }
       this.canvasPolygon.pop();
       this.picPolygon.pop();
+      const { width, height } = this;
+      clearCanvas(this.tmpLabelCtx, width, height);
       if (this.picPolygon.length == 0) {
         this.isLabelPolygon = false;
         this.tempLabelCanvas.style.cursor = "default";
+      } else {
+        let params = new CanvasParams(this.currentX, this.currentY, this.scale);
+        drawPolygonByPicCoors(this.tmpLabelCtx, this.picPolygon, params, false);
       }
-      const { width, height } = this;
-      clearCanvas(this.tmpLabelCtx, width, height);
-      let params = new CanvasParams(this.currentX, this.currentY, this.scale);
-      drawPolygonByPicCoors(this.tmpLabelCtx, this.picPolygon, params, false);
     },
 
     finishPolygon() {
